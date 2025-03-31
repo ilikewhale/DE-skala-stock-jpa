@@ -1,0 +1,1 @@
+# DE-Skala-Stock-Springboot
