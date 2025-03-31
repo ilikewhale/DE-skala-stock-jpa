@@ -15,6 +15,7 @@ import java.util.List;
 public class PlayerService {
     private final PlayerRepository playerRepository;
     private final StockService stockService;
+    private final PlayerStockFormatService formatService;
 
     @PostConstruct
     public void initialize() {
@@ -52,7 +53,7 @@ public class PlayerService {
         
         if (totalCost <= playerMoney) {
             player.setPlayerMoney(playerMoney - totalCost);
-            player.addStock(new PlayerStock(selectedStock, quantity));
+            addStock(player, new PlayerStock(selectedStock, quantity));
             playerRepository.savePlayerList();
             return true;
         }
@@ -66,7 +67,7 @@ public class PlayerService {
             return false;
         }
 
-        PlayerStock playerStock = player.findStock(stockIndex);
+        PlayerStock playerStock = findStock(player, stockIndex);
         if (playerStock == null || playerStock.getStockQuantity() < quantity) {
             return false;
         }
@@ -80,7 +81,7 @@ public class PlayerService {
         player.setPlayerMoney(playerMoney);
 
         playerStock.setStockQuantity(playerStock.getStockQuantity() - quantity);
-        player.updatePlayerStock(playerStock);
+        updatePlayerStock(player, playerStock);
         playerRepository.savePlayerList();
         
         return true;
@@ -91,6 +92,48 @@ public class PlayerService {
         if (player == null) {
             return "플레이어를 찾을 수 없습니다.";
         }
-        return player.getPlayerStocksForMenu();
+        return formatService.getPlayerStocksForMenu(player);
+    }
+    
+    // Player 클래스에서 이동된 메서드들 (포맷팅 관련 메서드 제거)
+    
+    public void addStock(Player player, PlayerStock stock) {
+        boolean stockExists = false;
+
+        for (PlayerStock existingStock : player.getPlayerStocks()) {
+            if (existingStock.getStockName().equals(stock.getStockName())) {
+                existingStock.setStockPrice(stock.getStockPrice());
+                existingStock.setStockQuantity(existingStock.getStockQuantity() + stock.getStockQuantity());
+                stockExists = true;
+                break;
+            }
+        }
+
+        if (!stockExists) {
+            player.getPlayerStocks().add(stock);
+        }
+    }
+
+    public void updatePlayerStock(Player player, PlayerStock stock) {
+        List<PlayerStock> playerStocks = player.getPlayerStocks();
+        for (int i = 0; i < playerStocks.size(); i++) {
+            PlayerStock existingStock = playerStocks.get(i);
+            if (existingStock.getStockName().equals(stock.getStockName())) {
+                existingStock.setStockPrice(stock.getStockPrice());
+                existingStock.setStockQuantity(stock.getStockQuantity());
+                if (existingStock.getStockQuantity() == 0) {
+                    playerStocks.remove(i);
+                }
+                break;
+            }
+        }
+    }
+
+    public PlayerStock findStock(Player player, int index) {
+        List<PlayerStock> playerStocks = player.getPlayerStocks();
+        if (index >= 0 && index < playerStocks.size()) {
+            return playerStocks.get(index);
+        }
+        return null;
     }
 }

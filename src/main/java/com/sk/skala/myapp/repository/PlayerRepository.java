@@ -2,6 +2,9 @@ package com.sk.skala.myapp.repository;
 
 import com.sk.skala.myapp.model.Player;
 import com.sk.skala.myapp.model.PlayerStock;
+import com.sk.skala.myapp.service.PlayerStockFormatService;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
@@ -13,7 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class PlayerRepository {
+    private final PlayerStockFormatService formatService;
+    
     // 플레이어 정보를 저장할 파일
     private final String PLAYER_FILE = "data/players.txt";
 
@@ -41,7 +47,7 @@ public class PlayerRepository {
             for (Player player : playerList) {
                 writer.write(player.getPlayerId() + "," + player.getPlayerMoney());
                 if (player.getPlayerStocks().size() > 0) {
-                    writer.write("," + player.getPlayerStocksForFile());
+                    writer.write("," + formatService.getPlayerStocksForFile(player));
                 }
                 writer.newLine();
             }
@@ -101,3 +107,4 @@ public class PlayerRepository {
         return playerList;
     }
 }
+
