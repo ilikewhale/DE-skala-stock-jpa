@@ -1,1 +1,1 @@
-# DE-Skala-Stock-Springboot
+# DE-skala-stock-springboot
