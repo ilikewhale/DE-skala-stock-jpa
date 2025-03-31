@@ -1,0 +1,3 @@
+Samsung:100
+Apple:200
+Google:150
