@@ -1,1 +1,1 @@
-# DE-skala-stock-springboot
+# DE-skala-stock-jpa
